@@ -500,7 +500,7 @@ namespace GAVPI
         {
 
             // If we don't have a process associated, skip this check.
-            if (AssociatedProcess == null) return true;
+            if (AssociatedProcess == null || AssociatedProcess == "") return true;
 
             IntPtr handle = Win32_APIs.GetForegroundWindow();
             uint pid = 0;
