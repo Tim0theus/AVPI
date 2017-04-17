@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            GAVPI.Properties.Settings settings1 = new GAVPI.Properties.Settings();
             System.Windows.Forms.Label parallelSpeechPoolLabel;
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmSettings));
             this.lblSettingsRecognizerLang = new System.Windows.Forms.Label();
@@ -177,13 +176,8 @@
             // AutoLoadProfiles
             // 
             this.AutoLoadProfiles.AutoSize = true;
-            settings1.EnableAutoListen = false;
-            settings1.EnableAutoOpenProfile = false;
-            settings1.ParallelSpeechPool = 1;
-            settings1.SettingsKey = "";
-            settings1.ShowGAVPI = true;
-            this.AutoLoadProfiles.Checked = settings1.EnableAutoOpenProfile;
-            this.AutoLoadProfiles.DataBindings.Add(new System.Windows.Forms.Binding("Checked", settings1, "EnableAutoOpenProfile", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.AutoLoadProfiles.Checked = global::GAVPI.Properties.Settings.Default.EnableAutoOpenProfile;
+            this.AutoLoadProfiles.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::GAVPI.Properties.Settings.Default, "EnableAutoOpenProfile", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.AutoLoadProfiles.Location = new System.Drawing.Point(15, 232);
             this.AutoLoadProfiles.Name = "AutoLoadProfiles";
             this.AutoLoadProfiles.Size = new System.Drawing.Size(365, 17);
@@ -195,8 +189,8 @@
             // AutomaticallyListen
             // 
             this.AutomaticallyListen.AutoSize = true;
-            this.AutomaticallyListen.Checked = settings1.EnableAutoListen;
-            this.AutomaticallyListen.DataBindings.Add(new System.Windows.Forms.Binding("Checked", settings1, "EnableAutoListen", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.AutomaticallyListen.Checked = global::GAVPI.Properties.Settings.Default.EnableAutoListen;
+            this.AutomaticallyListen.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::GAVPI.Properties.Settings.Default, "EnableAutoListen", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.AutomaticallyListen.Location = new System.Drawing.Point(34, 256);
             this.AutomaticallyListen.Name = "AutomaticallyListen";
             this.AutomaticallyListen.Size = new System.Drawing.Size(332, 17);
@@ -207,9 +201,9 @@
             // StartUpShowMainWindow
             // 
             this.StartUpShowMainWindow.AutoSize = true;
-            this.StartUpShowMainWindow.Checked = settings1.ShowGAVPI;
+            this.StartUpShowMainWindow.Checked = global::GAVPI.Properties.Settings.Default.ShowGAVPI;
             this.StartUpShowMainWindow.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.StartUpShowMainWindow.DataBindings.Add(new System.Windows.Forms.Binding("Checked", settings1, "ShowGAVPI", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.StartUpShowMainWindow.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::GAVPI.Properties.Settings.Default, "ShowGAVPI", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.StartUpShowMainWindow.Location = new System.Drawing.Point(15, 208);
             this.StartUpShowMainWindow.Name = "StartUpShowMainWindow";
             this.StartUpShowMainWindow.Size = new System.Drawing.Size(227, 17);
@@ -220,7 +214,7 @@
             // 
             // parallelSpeechPoolNumericUpDown
             // 
-            this.parallelSpeechPoolNumericUpDown.DataBindings.Add(new System.Windows.Forms.Binding("Value", settings1, "ParallelSpeechPool", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.parallelSpeechPoolNumericUpDown.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::GAVPI.Properties.Settings.Default, "ParallelSpeechPool", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.parallelSpeechPoolNumericUpDown.Location = new System.Drawing.Point(316, 282);
             this.parallelSpeechPoolNumericUpDown.Maximum = new decimal(new int[] {
             10,
