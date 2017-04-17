@@ -31,7 +31,7 @@ namespace GAVPI
         //  a process, this Profile will be automatically loaded whenever the process starts.
 
         private string AssociatedProcess;
-        public SpeechSynthesizer synth;
+        public SynthPool synthPool;
         public List<Trigger> Profile_Triggers;
         public List<Action_Sequence> Profile_ActionSequences;
 
@@ -45,8 +45,7 @@ namespace GAVPI
                 Profile_ActionSequences = new List<Action_Sequence>();
                 ProfileDB = new Database();
 
-
-                synth = new SpeechSynthesizer(); //used by action Speak
+                synthPool = new SynthPool();
 
                 if (filename != null) 
                 { 
@@ -190,7 +189,7 @@ namespace GAVPI
                     Action_Sequence ack_frm_file = null;
                     try
                     {
-                        ack_frm_file = new Action_Sequence(element,ProfileDB,this.synth);
+                        ack_frm_file = new Action_Sequence(element,ProfileDB,this.synthPool);
                         // Check if the profile contains any sequences by this name.
                         if (!Profile_ActionSequences.Any(ack => ack.name == ack_frm_file.name))
                         {

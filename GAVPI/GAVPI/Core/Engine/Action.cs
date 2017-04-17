@@ -133,11 +133,11 @@ namespace GAVPI
     }
     public partial class Speak : Action
     {
-        SpeechSynthesizer Profile_Synthesis;
+        SynthPool synthPool;
 
-        public Speak(SpeechSynthesizer Profile_Synthesis, string value) : base(value)
+        public Speak(SynthPool synthPool, string value) : base(value)
         {
-            this.Profile_Synthesis = Profile_Synthesis;
+            this.synthPool = synthPool;
         }
 
         public override string value
@@ -150,7 +150,7 @@ namespace GAVPI
         {
             try
             {
-                Profile_Synthesis.SpeakAsync(value);
+                synthPool.Speak(value);
             }
             catch (Exception synth_err)
             {
@@ -341,12 +341,12 @@ namespace GAVPI
      */
     public partial class Data_Speak : Action
     {
-        SpeechSynthesizer Profile_Synthesis;
+        SynthPool synthPool;
         Data data;
 
-        public Data_Speak(SpeechSynthesizer Profile_Synthesis, Data data)
+        public Data_Speak(SynthPool synthPool, Data data)
         {
-            this.Profile_Synthesis = Profile_Synthesis;
+            this.synthPool = synthPool;
             this.data = data;
         }
 
@@ -360,7 +360,7 @@ namespace GAVPI
         {
             try
             {
-                Profile_Synthesis.SpeakAsync(data.value.ToString());
+                synthPool.Speak(data.value.ToString());
             }
             catch (Exception synth_err)
             {

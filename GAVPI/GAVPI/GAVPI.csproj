@@ -83,6 +83,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\Engine\Action.cs" />
+    <Compile Include="Core\Engine\SynthPool.cs" />
     <Compile Include="Core\Profile\Profile.cs" />
     <Compile Include="GUI\Actions\frm_AddEdit_NestAction.cs">
       <SubType>Form</SubType>
@@ -259,6 +260,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="app.manifest" />
+    <None Include="Properties\DataSources\GAVPI.Properties.Settings.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

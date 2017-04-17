@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 
 using System.Speech.Recognition;
-using System.Speech.Synthesis;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -18,7 +17,6 @@ namespace GAVPI
 {
     public class InputEngine
     {
-        SpeechSynthesizer synth;
         SpeechRecognitionEngine speech_re;
         
         private bool pushtotalk_active;
@@ -57,8 +55,7 @@ namespace GAVPI
                 return false;
             }
 
-            synth = GAVPI.Profile.synth;
-            synth.SelectVoice( GAVPI.Settings.voice_info );
+            GAVPI.Profile.synthPool.Reload();
             speech_re = new SpeechRecognitionEngine( GAVPI.Settings.recognizer_info );
 
             GrammarBuilder phrases_grammar = new GrammarBuilder();
@@ -130,6 +127,18 @@ namespace GAVPI
             KeyboardHook.UninstallHook();
             KeyboardHook.KeyDown -= pushtotalk_keyDownHook;
             KeyboardHook.KeyUp -= pushtotalk_keyUpHook;
+
+            foreach (Action_Sequence action_sequence in GAVPI.Profile.Profile_ActionSequences)
+            {
+                foreach (Action action in action_sequence.action_sequence)
+                {
+                    if (action is Play_Sound)
+                    {
+                        Play_Sound test = (Play_Sound)action;
+                        test.stop();
+                    }
+                }
+            }
 
             IsListening = false;
 

@@ -28,6 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
+            GAVPI.Properties.Settings settings1 = new GAVPI.Properties.Settings();
+            System.Windows.Forms.Label parallelSpeechPoolLabel;
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmSettings));
             this.lblSettingsRecognizerLang = new System.Windows.Forms.Label();
             this.btnSettingsSave = new System.Windows.Forms.Button();
@@ -44,6 +46,9 @@
             this.AutoLoadProfiles = new System.Windows.Forms.CheckBox();
             this.AutomaticallyListen = new System.Windows.Forms.CheckBox();
             this.StartUpShowMainWindow = new System.Windows.Forms.CheckBox();
+            this.parallelSpeechPoolNumericUpDown = new System.Windows.Forms.NumericUpDown();
+            parallelSpeechPoolLabel = new System.Windows.Forms.Label();
+            ((System.ComponentModel.ISupportInitialize)(this.parallelSpeechPoolNumericUpDown)).BeginInit();
             this.SuspendLayout();
             // 
             // lblSettingsRecognizerLang
@@ -58,7 +63,7 @@
             // btnSettingsSave
             // 
             this.btnSettingsSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSettingsSave.Location = new System.Drawing.Point(255, 289);
+            this.btnSettingsSave.Location = new System.Drawing.Point(263, 332);
             this.btnSettingsSave.Name = "btnSettingsSave";
             this.btnSettingsSave.Size = new System.Drawing.Size(75, 23);
             this.btnSettingsSave.TabIndex = 2;
@@ -70,7 +75,7 @@
             // 
             this.btnSettingsCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnSettingsCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnSettingsCancel.Location = new System.Drawing.Point(336, 289);
+            this.btnSettingsCancel.Location = new System.Drawing.Point(344, 332);
             this.btnSettingsCancel.Name = "btnSettingsCancel";
             this.btnSettingsCancel.Size = new System.Drawing.Size(75, 23);
             this.btnSettingsCancel.TabIndex = 3;
@@ -95,7 +100,7 @@
             this.cbSettingsSynthesizer.FormattingEnabled = true;
             this.cbSettingsSynthesizer.Location = new System.Drawing.Point(226, 46);
             this.cbSettingsSynthesizer.Name = "cbSettingsSynthesizer";
-            this.cbSettingsSynthesizer.Size = new System.Drawing.Size(185, 21);
+            this.cbSettingsSynthesizer.Size = new System.Drawing.Size(193, 21);
             this.cbSettingsSynthesizer.TabIndex = 6;
             // 
             // lblSettingsSpeechRecordingDevice
@@ -115,7 +120,7 @@
             this.cbSettingsRecordingDevice.FormattingEnabled = true;
             this.cbSettingsRecordingDevice.Location = new System.Drawing.Point(226, 86);
             this.cbSettingsRecordingDevice.Name = "cbSettingsRecordingDevice";
-            this.cbSettingsRecordingDevice.Size = new System.Drawing.Size(185, 21);
+            this.cbSettingsRecordingDevice.Size = new System.Drawing.Size(193, 21);
             this.cbSettingsRecordingDevice.TabIndex = 8;
             // 
             // cbSettingsLanguage
@@ -126,7 +131,7 @@
             this.cbSettingsLanguage.FormattingEnabled = true;
             this.cbSettingsLanguage.Location = new System.Drawing.Point(226, 6);
             this.cbSettingsLanguage.Name = "cbSettingsLanguage";
-            this.cbSettingsLanguage.Size = new System.Drawing.Size(185, 21);
+            this.cbSettingsLanguage.Size = new System.Drawing.Size(193, 21);
             this.cbSettingsLanguage.TabIndex = 1;
             // 
             // cbSettingsPushToTalkMode
@@ -137,7 +142,7 @@
             this.cbSettingsPushToTalkMode.FormattingEnabled = true;
             this.cbSettingsPushToTalkMode.Location = new System.Drawing.Point(226, 126);
             this.cbSettingsPushToTalkMode.Name = "cbSettingsPushToTalkMode";
-            this.cbSettingsPushToTalkMode.Size = new System.Drawing.Size(185, 21);
+            this.cbSettingsPushToTalkMode.Size = new System.Drawing.Size(193, 21);
             this.cbSettingsPushToTalkMode.TabIndex = 10;
             // 
             // lblSettingsPushToTalkMode
@@ -157,7 +162,7 @@
             this.cbSettingsPushToTalkKey.FormattingEnabled = true;
             this.cbSettingsPushToTalkKey.Location = new System.Drawing.Point(226, 166);
             this.cbSettingsPushToTalkKey.Name = "cbSettingsPushToTalkKey";
-            this.cbSettingsPushToTalkKey.Size = new System.Drawing.Size(185, 21);
+            this.cbSettingsPushToTalkKey.Size = new System.Drawing.Size(193, 21);
             this.cbSettingsPushToTalkKey.TabIndex = 12;
             // 
             // lblSettingsPushToTalkKey
@@ -172,8 +177,13 @@
             // AutoLoadProfiles
             // 
             this.AutoLoadProfiles.AutoSize = true;
-            this.AutoLoadProfiles.Checked = global::GAVPI.Properties.Settings.Default.EnableAutoOpenProfile;
-            this.AutoLoadProfiles.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::GAVPI.Properties.Settings.Default, "EnableAutoOpenProfile", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            settings1.EnableAutoListen = false;
+            settings1.EnableAutoOpenProfile = false;
+            settings1.ParallelSpeechPool = 1;
+            settings1.SettingsKey = "";
+            settings1.ShowGAVPI = true;
+            this.AutoLoadProfiles.Checked = settings1.EnableAutoOpenProfile;
+            this.AutoLoadProfiles.DataBindings.Add(new System.Windows.Forms.Binding("Checked", settings1, "EnableAutoOpenProfile", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.AutoLoadProfiles.Location = new System.Drawing.Point(15, 232);
             this.AutoLoadProfiles.Name = "AutoLoadProfiles";
             this.AutoLoadProfiles.Size = new System.Drawing.Size(365, 17);
@@ -185,8 +195,8 @@
             // AutomaticallyListen
             // 
             this.AutomaticallyListen.AutoSize = true;
-            this.AutomaticallyListen.Checked = global::GAVPI.Properties.Settings.Default.EnableAutoListen;
-            this.AutomaticallyListen.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::GAVPI.Properties.Settings.Default, "EnableAutoListen", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.AutomaticallyListen.Checked = settings1.EnableAutoListen;
+            this.AutomaticallyListen.DataBindings.Add(new System.Windows.Forms.Binding("Checked", settings1, "EnableAutoListen", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.AutomaticallyListen.Location = new System.Drawing.Point(34, 256);
             this.AutomaticallyListen.Name = "AutomaticallyListen";
             this.AutomaticallyListen.Size = new System.Drawing.Size(332, 17);
@@ -197,9 +207,9 @@
             // StartUpShowMainWindow
             // 
             this.StartUpShowMainWindow.AutoSize = true;
-            this.StartUpShowMainWindow.Checked = global::GAVPI.Properties.Settings.Default.ShowGAVPI;
+            this.StartUpShowMainWindow.Checked = settings1.ShowGAVPI;
             this.StartUpShowMainWindow.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.StartUpShowMainWindow.DataBindings.Add(new System.Windows.Forms.Binding("Checked", global::GAVPI.Properties.Settings.Default, "ShowGAVPI", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.StartUpShowMainWindow.DataBindings.Add(new System.Windows.Forms.Binding("Checked", settings1, "ShowGAVPI", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.StartUpShowMainWindow.Location = new System.Drawing.Point(15, 208);
             this.StartUpShowMainWindow.Name = "StartUpShowMainWindow";
             this.StartUpShowMainWindow.Size = new System.Drawing.Size(227, 17);
@@ -208,6 +218,38 @@
             this.StartUpShowMainWindow.UseVisualStyleBackColor = true;
             this.StartUpShowMainWindow.CheckedChanged += new System.EventHandler(this.StartUpShowMainWindow_CheckedChanged);
             // 
+            // parallelSpeechPoolNumericUpDown
+            // 
+            this.parallelSpeechPoolNumericUpDown.DataBindings.Add(new System.Windows.Forms.Binding("Value", settings1, "ParallelSpeechPool", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.parallelSpeechPoolNumericUpDown.Location = new System.Drawing.Point(316, 282);
+            this.parallelSpeechPoolNumericUpDown.Maximum = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            this.parallelSpeechPoolNumericUpDown.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.parallelSpeechPoolNumericUpDown.Name = "parallelSpeechPoolNumericUpDown";
+            this.parallelSpeechPoolNumericUpDown.Size = new System.Drawing.Size(31, 20);
+            this.parallelSpeechPoolNumericUpDown.TabIndex = 17;
+            this.parallelSpeechPoolNumericUpDown.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // parallelSpeechPoolLabel
+            // 
+            parallelSpeechPoolLabel.AutoSize = true;
+            parallelSpeechPoolLabel.Location = new System.Drawing.Point(12, 284);
+            parallelSpeechPoolLabel.Name = "parallelSpeechPoolLabel";
+            parallelSpeechPoolLabel.Size = new System.Drawing.Size(298, 13);
+            parallelSpeechPoolLabel.TabIndex = 16;
+            parallelSpeechPoolLabel.Text = "Number of parallel speeches from 1 (no parallel speech) to 10:";
+            // 
             // frmSettings
             // 
             this.AcceptButton = this.btnSettingsSave;
@@ -215,7 +257,9 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoValidate = System.Windows.Forms.AutoValidate.EnablePreventFocusChange;
             this.CancelButton = this.btnSettingsCancel;
-            this.ClientSize = new System.Drawing.Size(423, 324);
+            this.ClientSize = new System.Drawing.Size(431, 367);
+            this.Controls.Add(parallelSpeechPoolLabel);
+            this.Controls.Add(this.parallelSpeechPoolNumericUpDown);
             this.Controls.Add(this.AutomaticallyListen);
             this.Controls.Add(this.AutoLoadProfiles);
             this.Controls.Add(this.StartUpShowMainWindow);
@@ -236,6 +280,7 @@
             this.Name = "frmSettings";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Settings";
+            ((System.ComponentModel.ISupportInitialize)(this.parallelSpeechPoolNumericUpDown)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -258,5 +303,6 @@
         private System.Windows.Forms.CheckBox StartUpShowMainWindow;
         private System.Windows.Forms.CheckBox AutoLoadProfiles;
         private System.Windows.Forms.CheckBox AutomaticallyListen;
+        private System.Windows.Forms.NumericUpDown parallelSpeechPoolNumericUpDown;
     }
 }

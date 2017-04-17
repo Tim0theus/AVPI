@@ -45,7 +45,7 @@ namespace GAVPI
             this.name = name;
         }
 
-        public Action_Sequence(XmlNode element, Database ProfileDB, SpeechSynthesizer synth)
+        public Action_Sequence(XmlNode element, Database ProfileDB, SynthPool synthPool)
         {
             /* An action sequence is composed of an <Action_Sequence> node with several
              * requred and several optional attributes. 
@@ -101,7 +101,7 @@ namespace GAVPI
                 {
                     case "Speak":
                         {
-                            action_instance = Activator.CreateInstance(new_action_type, synth, action_value);
+                            action_instance = Activator.CreateInstance(new_action_type, synthPool, action_value);
                             break;
                         }
                     case "Play_Sound":
@@ -122,7 +122,7 @@ namespace GAVPI
                             // action_value is the db key, the data element name
                             if (ProfileDB.DB.ContainsKey(action_value))
                             {
-                                action_instance = Activator.CreateInstance(new_action_type, synth,
+                                action_instance = Activator.CreateInstance(new_action_type, synthPool,
                                     (Data)ProfileDB.DB[action_value]);
                             }
                             else

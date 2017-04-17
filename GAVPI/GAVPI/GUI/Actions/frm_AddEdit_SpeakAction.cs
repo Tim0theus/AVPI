@@ -140,13 +140,13 @@ namespace GAVPI
             {
                 // Simple uses text property for value
                 form_action = (Action)Activator.CreateInstance(
-                new_action_type, GAVPI.Profile.synth, cbSpeechValue.Text);
+                new_action_type, GAVPI.Profile.synthPool, cbSpeechValue.Text);
                
             }
             else if (cbSpeechType.Text == "Data_Speak")
             {
                 form_action = (Action)Activator.CreateInstance(
-                new_action_type, GAVPI.Profile.synth, GAVPI.Profile.ProfileDB.DB[cbSpeechValue.Text]);
+                new_action_type, GAVPI.Profile.synthPool, GAVPI.Profile.ProfileDB.DB[cbSpeechValue.Text]);
                
             }
             else
