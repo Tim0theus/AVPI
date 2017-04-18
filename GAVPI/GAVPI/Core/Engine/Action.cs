@@ -1,6 +1,7 @@
 ﻿using InputManager;
 using NAudio.Wave;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Speech.Synthesis;
 using System.Threading;
@@ -11,16 +12,18 @@ namespace GAVPI
 {
     public abstract class Action
     {
+
         public string type { get; set; }
+
         public abstract string value { get; set; }
 
         public abstract void run();
         
-
         public Action()
         {
             this.type = this.GetType().Name;
         }
+
         public Action(string value)
         {
             this.value = value;
@@ -30,25 +33,24 @@ namespace GAVPI
 
     public partial class KeyDown : Action
     {
-        public KeyDown(string value) : base(value)
-        {
-            this.value = value;
-        }
+        
+        public KeyDown(string value) : base(value) { }
+
         public override string value
         {
             get; set;
         }
+
         public override void run()
         {
             Keyboard.KeyDown((Keys)Enum.Parse(typeof(Keys), value));
         }
     }
+
     public partial class KeyUp : Action
     {
-        public KeyUp(string value) : base(value)
-        {
-            this.value = value;
-        }
+        public KeyUp(string value) : base(value) { }
+        
         public override string value
         {
             get;
@@ -61,10 +63,8 @@ namespace GAVPI
     }
     public partial class KeyPress : Action
     {
-        public KeyPress(string value) : base(value)
-        {
-            this.value = value;
-        }
+        public KeyPress(string value) : base(value) { }
+
         public override string value
         {
             get;
@@ -79,10 +79,7 @@ namespace GAVPI
 
     public partial class MouseKeyDown : Action
     {
-        public MouseKeyDown(string value) : base(value)
-        {
-            this.value = value;
-        }
+        public MouseKeyDown(string value) : base(value) { }
         public override string value
         {
             get;
@@ -95,10 +92,7 @@ namespace GAVPI
     }
     public partial class MouseKeyUp : Action
     {
-        public MouseKeyUp(string value) : base(value)
-        {
-            this.value = value;
-        }
+        public MouseKeyUp(string value) : base(value) { }
         public override string value
         {
             get;
@@ -111,10 +105,7 @@ namespace GAVPI
     }
     public partial class MouseKeyPress : Action
     {
-        public MouseKeyPress(string value) : base(value)
-        {
-            this.value = value;
-        }
+        public MouseKeyPress(string value) : base(value) { }
         public override string value
         {
             get;
@@ -127,10 +118,7 @@ namespace GAVPI
     }
     public partial class Wait : Action
     {
-        public Wait(string value) : base(value)
-        {
-            this.value = value;
-        }
+        public Wait(string value) : base(value) { }
         public override string value
         {
             get;
@@ -146,11 +134,12 @@ namespace GAVPI
     public partial class Speak : Action
     {
         SpeechSynthesizer Profile_Synthesis;
+
         public Speak(SpeechSynthesizer Profile_Synthesis, string value) : base(value)
         {
             this.Profile_Synthesis = Profile_Synthesis;
-            this.value = value;
         }
+
         public override string value
         {
             get;
@@ -173,35 +162,31 @@ namespace GAVPI
         }
     }
     #region PlaySound Actions
-    // More formats support
+
     public partial class Play_Sound : Action
     {
-        // Optional Implementation is via WMP.
-        // WMPLib.WindowsMediaPlayer player;
-
         IWavePlayer wavePlayer;
+        WaveOut wavout;
         AudioFileReader audioFileReader;
         int playBackDeviceID;
 
         public const int defaultDeviceID = -1;
         
-        public Play_Sound(string filename,int deviceID)
+        public Play_Sound(string filename,int deviceID) : base(filename)
         {
-            this.value = filename;
             this.playBackDeviceID = deviceID;
 
             try
             {
-                // Optional : WMP
-                // player = new WMPLib.WindowsMediaPlayer();
-                WaveOut wavout = new WaveOut();
+                wavout = new WaveOut();
                 wavout.DeviceNumber = playBackDeviceID;
                 wavePlayer = wavout;
                 audioFileReader = new AudioFileReader(this.value);
             }
             catch (Exception e)
             {
-                MessageBox.Show("Sound Playback Device Initializing Err : " + e.Message, "Error");
+                GAVPI.Log.Entry("[ ! ] Error in Action: " + e.Message);
+                this.LogError();
             }
         }
 
@@ -210,69 +195,105 @@ namespace GAVPI
             return playBackDeviceID;
         }
 
-        /*
-        * Instead of using an encoding hack, we modify the action parsing/saving cases in the profile code.
-        public static Tuple<int, string> decodeFilename(string encoded_filename)
+        public override string value
         {
-            const char delim = '|';
-            // No delim present, this is probably just the filename from an old profile.
-            if (!encoded_filename.Contains(delim))
+            get;
+            set;
+        }
+
+        public void stop()
+        {
+            if (wavePlayer != null)
             {
-                return new Tuple<int, string>(defaultDeviceID, encoded_filename);
-            }
-            else
-            {
-                int decodedID;
-                string[] decoded = encoded_filename.Split(delim);
-                if (decoded.Length == 2 && Int32.TryParse(decoded[0], out decodedID))
-                {
-                    return new Tuple<int, string>(decodedID, decoded[1]);
-                }
-                else
-                {
-                    return new Tuple<int, string>(defaultDeviceID, encoded_filename);
-                }
+                wavePlayer.Stop();
             }
         }
-        public static string encodeFilename(int deviceID, string filename)
+
+        public override void run()
         {
-            return deviceID.ToString() + delim + filename;
-        }*/
+            try
+            {
+                // Device ID cannot be changed after init, so we will init here in case there is a live update.
+                wavePlayer.Pause();
+                audioFileReader.Seek(0, System.IO.SeekOrigin.Begin);
+                wavePlayer.Init(audioFileReader);
+                wavePlayer.Play();
+            }
+
+            catch (NAudio.MmException e)
+            {
+                GAVPI.Log.Entry("[ ! ] NAudio Sound playback error: " + e.Message);
+                this.LogError();
+
+                // NAudio always throws MmExceptions so we parse from the message for this case.
+                if ( e.Message.Equals("BadDeviceId calling waveOutOpen") )
+                {    
+                    GAVPI.Log.Entry("[...] Attempting to playback via default device next time.");
+                    
+                    // A little self healing, it's likely that device was unplugged or
+                    // changed in some way since the profie has been loaded.
+                    wavout = new WaveOut();
+                    wavout.DeviceNumber = defaultDeviceID;
+                    wavePlayer = wavout;
+                    audioFileReader = new AudioFileReader(this.value);
+
+                }
+            }
+            catch (Exception e)
+            {
+                GAVPI.Log.Entry("[ ! ] General error in audio playback: " + e.Message);
+                this.LogError();
+            }
+        }
+
+        private void LogError()
+        {
+            GAVPI.Log.Entry(
+                String.Format("[ ! ] Error in Play_Sound: File {0}, Device {1}",
+                this.value,this.playBackDeviceID
+                )
+            );
+        }
+    }
+
+    public partial class Stop_Sound : Action
+    {
+        public Stop_Sound()
+        {
+            this.value = "Stop All Playback";
+        }
+
+        public Stop_Sound(string value) : base(value) { }
 
         public override string value
         {
             get;
             set;
         }
+
         public override void run()
         {
-            try
+            foreach (Action_Sequence action_sequence in GAVPI.Profile.Profile_ActionSequences)
             {
-                // Optional : WMP
-                // player.URL = this.value;
-                // player.controls.play();
-
-                // Device ID cannot be changed after init, so we will init here in case there is a live update.
-                wavePlayer.Init(audioFileReader);
-                wavePlayer.Play();
-            }
-            catch (Exception e)
-            {
-                // TODO : Notify error.
-                MessageBox.Show("Cannot playback media file " + this.value, "Error: " + e.Message);
+                foreach (Action action in action_sequence.action_sequence)
+                {
+                    if (action is Play_Sound)
+                    {
+                        Play_Sound test = (Play_Sound)action;
+                        test.stop();   
+                    }
+                }
             }
         }
     }
+
     #endregion
 
     #region Data Actions
     public partial class Data_Decrement : Action
     {
         Data data;
-        public Data_Decrement(Data data, string value) : base(value)
-        {
-            this.value = value;
-        }
+        public Data_Decrement(Data data, string value) : base(value) { }
         public override string value
         {
             get { return data.value.ToString(); }
@@ -286,11 +307,8 @@ namespace GAVPI
     public partial class Data_Increment : Action
     {
         Data data;
-        public Data_Increment(Data data, string value)
-            : base(value)
-        {
-            this.value = value;
-        }
+        public Data_Increment(Data data, string value) : base(value) { }
+
         public override string value
         {
             get { return data.value.ToString(); }
@@ -304,11 +322,7 @@ namespace GAVPI
     public partial class Data_Set : Action
     {
         Data data;
-        public Data_Set(Data data, string value)
-            : base(value)
-        {
-            this.value = value;
-        }
+        public Data_Set(Data data, string value) : base(value) { }
         public override string value
         {
             get { return data.value.ToString(); }
@@ -320,13 +334,13 @@ namespace GAVPI
 
         }
     }
+
+    /* Data Speak's value is the data elements key (it's name)
+     * however on invocation it will query data.value for the actual
+     * value.
+     */
     public partial class Data_Speak : Action
     {
-        /* Data Speak's value is the data elements key (it's name)
-         * however on invocation it will query data.value for the actual
-         * value. (in other words we access the value by reference)
-         * Robert (04.12.15)
-         */
         SpeechSynthesizer Profile_Synthesis;
         Data data;
 
@@ -342,7 +356,6 @@ namespace GAVPI
             set { this.value = data.name; }
         }
 
-        //public ValueType 
         public override void run()
         {
             try
@@ -356,43 +369,92 @@ namespace GAVPI
                     MessageBoxIcon.Exclamation,
                     MessageBoxDefaultButton.Button1);
             }
-
-
         }
     }
 
-    // Simple WAV implementation taken from AVPI
-    //public partial class Play_WAV : Action
-    //{
-    //    System.Media.SoundPlayer wav;
+    #endregion
 
-    //    public Play_WAV(string filename)
-    //    {
-    //        this.value = filename;
-    //        try
-    //        {
-    //            wav = new System.Media.SoundPlayer(this.value);
-    //        }
-    //        catch (Exception e)
-    //        {
-    //            // TODO : Notify error.
-    //        }
-    //    }
+    #region System Action
+    // System calls and actionss.
+    public partial class ProcessExec : Action
+    {
+        Process proc = new Process();
 
-    //    public override void run()
-    //    {
-    //        //Quick and easy.
-    //        try
-    //        {
-    //            wav.Play(); //async
-    //            wav.Dispose();
-    //        }
-    //        catch (Exception e)
-    //        {
-    //            // TODO : Notify error.
-    //        }
-    //    }
-    //}
+        public ProcessExec(string proc_name) : base(proc_name) { }
 
+        public override string value
+        {
+            get; set ;
+        }
+
+        public override void run()
+        {
+            Process.Start(this.value);
+        }
+    }
+
+    public partial class ClipboardCopy : Action
+    {
+        public ClipboardCopy(string value) : base(value) { }
+
+        public override string value
+        {
+            get
+            {
+                throw new NotImplementedException();
+
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public override void run()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public partial class ClipboardPaste : Action
+    {
+        public ClipboardPaste(string value) : base(value) { }
+
+        public override string value
+        {
+            get; set;
+        }
+
+        public override void run()
+        {
+            Clipboard.SetText(this.value, TextDataFormat.Text);
+            SendKeys.Send("^V");
+        }
+    }
+
+    #endregion
+
+    #region RandomPicker Actions
+    // 
+    public partial class Or : Action
+    {
+        static Random rnd = new Random();
+        public Action_Sequence actions;
+        public Or(Action_Sequence actions, string value) : base(value)
+        {
+            this.actions = actions;
+        }
+        public override string value
+        {
+            get;
+            set;
+        }
+
+        public override void run()
+        {
+            int r = rnd.Next(actions.action_sequence.Count);
+            actions.action_sequence[r].run();
+        }
+    }
     #endregion
 }

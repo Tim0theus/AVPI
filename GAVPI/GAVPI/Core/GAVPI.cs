@@ -17,14 +17,13 @@ using TrivialProcessMonitor;
 
 namespace GAVPI
 {
-
     static class GAVPI
     {
 
         //  The application's title, a system-wide unique ID to facilitate single-instancing (see Mutex,
         //  later), and an XML Path to easily extract specific information from GAVPI Profile XML documents.
 
-        public const string BUILD_VERSION = "GAVPI Alpha 0.10.1 04.24.16";
+        public const string BUILD_VERSION = "GAVPI 17.03.15";
 
         const string APPLICATION_TITLE = "GAVPI";
 
@@ -42,7 +41,7 @@ namespace GAVPI
         public static Settings Settings;
         public static Profile Profile;
 
-        public static InputEngine vi;
+        public static InputEngine InputEngine;
 
         private static frmGAVPI MainForm;
         private static frmProfile ProfileEditor;
@@ -50,9 +49,7 @@ namespace GAVPI
 
         //  Our running Log and the Most Recently Used Profile list.
         public static Logging< string > Log;
-
-        //  Profile loading/unload debug log.
-        public static Logging< string > ProfileDebugLog;
+        public static List<string> dbg_log;
 
         private static MRU ProfileMRU;
         
@@ -98,20 +95,20 @@ namespace GAVPI
             //  will be displayed within a ListBox in the main form, frmGAVPI.  We specify a callback method so
             //  that we may inform an already open frmGAVPI to update the ListBox with the log content.
 
-            // Additionally we maintain of a log of profile loading/saving information.
-            try { 
-
+            try 
+            { 
                 Log = new Logging< string >( GAVPI.OnLogMessage );
-
-                ProfileDebugLog = new Logging<string>();
-
-            } catch( Exception ) { throw; }
+            } 
+            catch( Exception ) 
+            { 
+                throw; 
+            }
 
 
             Settings = new Settings();
-            Profile = new Profile( null );
-
-            vi = new InputEngine();
+            Profile  = new Profile( null );
+            InputEngine = new InputEngine();
+            dbg_log = new List<string>();
             
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
@@ -252,12 +249,13 @@ namespace GAVPI
 
             Properties.Settings.Default.Save();
 
+            // Stop listening.
+            StopListening(null, null);
+
             //  And get rid of the system tray icon.
             if (sysTrayIcon != null)
             {
-                // strackoverflow tip:
-                // trayicon must be set to null in order to keep it from lingering in the tray.
-                // Robert (04.23.15)
+                // Tray icon must be set to null in order to keep it from lingering in the tray.
                 sysTrayIcon.Visible = false;
                 sysTrayIcon.Dispose();
                 sysTrayIcon = null;
@@ -277,8 +275,11 @@ namespace GAVPI
 
         static private void OnDoubleClickIcon( object sender, EventArgs e )
         {
-
-            OpenMainWindow( sysTrayMenu.MenuItems[ OPEN_LOG_MENU_ITEM ], null );
+            // Don't spawn multiple main windows on double click.
+            if (sysTrayMenu.MenuItems[OPEN_LOG_MENU_ITEM].Enabled)
+            {
+                OpenMainWindow(sysTrayMenu.MenuItems[OPEN_LOG_MENU_ITEM], null);
+            }
             
         }  //   static private void OnDoubleClickIcon( object, EventArgs )
 
@@ -450,7 +451,7 @@ namespace GAVPI
 
             if( !AssociatedProfiles.ContainsKey( processFilename ) ) return;
 
-            if( vi.IsListening ) StopListening( null, null );
+            if( InputEngine.IsListening ) StopListening( null, null );
 
             if( Profile.GetProfileFilename() != AssociatedProfiles[ processFilename ] )
                 LoadProfile( AssociatedProfiles[ processFilename ] );
@@ -474,7 +475,7 @@ namespace GAVPI
             //  If the process is one whose running and terminated states we are tracking and auto-listen is enabled,
             //  stop Listening.
 
-            if( vi.IsListening &&
+            if( InputEngine.IsListening &&
                 processFilename != null &&
                 AssociatedProfiles.ContainsKey( processFilename ) && 
                 Properties.Settings.Default.EnableAutoListen &&
@@ -495,7 +496,7 @@ namespace GAVPI
         static public string GetStatusString()
         {                  
         
-            return ( vi.IsListening ? "LISTENING:" : "NOT LISTENING:" ) + " " +
+            return ( InputEngine.IsListening ? "LISTENING:" : "NOT LISTENING:" ) + " " +
                    ( Profile.IsEdited() ? " [UNSAVED] " : " " ) +
                    Path.GetFileNameWithoutExtension( Profile.GetProfileFilename() );
 
@@ -515,7 +516,7 @@ namespace GAVPI
             //  If we're not already listening on voice commands, try to start listening (this is a sanity
             //  check that we shouldn't need, but to hell with it)...
 
-            if( vi.IsListening || !vi.load_listen() ) return;
+            if( InputEngine.IsListening || !InputEngine.load_listen() ) return;
             
             //  Update the main form's UI to reflect the listening state.
 
@@ -549,12 +550,12 @@ namespace GAVPI
         static public void StopListening( object SelectedMenuItem, EventArgs e )
         {
 
-            if( !vi.IsListening ) return;
+            if( !InputEngine.IsListening ) return;
 
             //  Stop listening on voice commands...
 
-            vi.stop_listen();
-            vi = new InputEngine();
+            InputEngine.stop_listen();
+            InputEngine = new InputEngine();
 
             //  Update the main form to reflect the stopped state...
 

@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace GAVPI
 {
-    public partial class frm_AddEdit_SpeakAction : Form
+    public partial class frm_AddEdit_PasteAction : Form
     {
        
         #region Globals
@@ -35,13 +35,13 @@ namespace GAVPI
         #endregion
 
         #region Constructors
-        public frm_AddEdit_SpeakAction()
+        public frm_AddEdit_PasteAction()
         {
             InitializeComponent();
 
             populate_fields();
         }
-        public frm_AddEdit_SpeakAction(Action action)
+        public frm_AddEdit_PasteAction(Action action)
         {
             InitializeComponent();
 
@@ -59,7 +59,7 @@ namespace GAVPI
 
             txtTimesToAdd.Text = times_to_add.ToString();
 
-            cbSpeechType.DataSource = frm_AddEdit_ActionSequence.ActionGroups["Speak Action"]; ;
+            cbPasteType.DataSource = frm_AddEdit_ActionSequence.ActionGroups["Paste Action"]; ;
 
             // Editing an existing action
             if (form_action != null)
@@ -70,24 +70,7 @@ namespace GAVPI
 
                 refresh_comboboxes();
 
-                cbSpeechType.SelectedText = form_action.type;
-                
-                
-                ////cbSpeechValue.SelectedText
-                ////TODO
-                //if (form_action.type == "Speak")
-                //{
- 
-                //}
-                //else if (form_action.type == "Data_Speak")
-                //{
-                    
-
-                //}
-                //else
-                //{
- 
-                //}
+                cbPasteType.SelectedText = form_action.type;
 
             }
             // New Action
@@ -119,12 +102,12 @@ namespace GAVPI
             }
 
             // Validate Combobox value
-            if (String.IsNullOrWhiteSpace(cbSpeechValue.Text))
+            if (String.IsNullOrWhiteSpace(cbPasteValue.Text))
             {
                 MessageBox.Show("Value cannot be blank.");
                 return;
             }
-            else if (String.IsNullOrWhiteSpace(cbSpeechValue.Text))
+            else if (String.IsNullOrWhiteSpace(cbPasteValue.Text))
             {
                 MessageBox.Show("Value cannot be blank.");
                 return;
@@ -133,22 +116,23 @@ namespace GAVPI
 
             // Build the action from current form values
             Type new_action_type = Type.GetType(
-                "GAVPI." + cbSpeechType.SelectedItem.ToString());
+                "GAVPI." + cbPasteType.SelectedItem.ToString());
 
             // Set the form action, overriting it with newly created action object.
-            if (cbSpeechType.Text == "Speak")
+            if (cbPasteType.Text == "ClipboardPaste")
             {
                 // Simple uses text property for value
                 form_action = (Action)Activator.CreateInstance(
-                new_action_type, GAVPI.Profile.synth, cbSpeechValue.Text);
+                new_action_type, cbPasteValue.Text);
                
             }
-            else if (cbSpeechType.Text == "Data_Speak")
-            {
-                form_action = (Action)Activator.CreateInstance(
-                new_action_type, GAVPI.Profile.synth, GAVPI.Profile.ProfileDB.DB[cbSpeechValue.Text]);
+            // TODO
+            //else if (cbPasteType.Text == "Data_Paste")
+            //{
+            //    form_action = (Action)Activator.CreateInstance(
+            //    new_action_type, GAVPI.Profile.synth, GAVPI.Profile.ProfileDB.DB[cbPasteValue.Text]);
                
-            }
+            //}
             else
             {
                 //unsupported type!
@@ -175,16 +159,16 @@ namespace GAVPI
         #region UI : Refresh
         private void refresh_comboboxes()
         {
-            if (cbSpeechType.Text == "Speak")
+            if (cbPasteType.Text == "ClipboardPaste")
             {
-                cbSpeechValue.DropDownStyle = ComboBoxStyle.Simple;
-                cbSpeechValue.Text = String.Empty;
+                cbPasteValue.DropDownStyle = ComboBoxStyle.Simple;
+                cbPasteValue.Text = String.Empty;
             }
-            else if (cbSpeechType.Text == "Data_Speak")
-            {
-                cbSpeechValue.DropDownStyle = ComboBoxStyle.DropDownList;
-                cbSpeechValue.DataSource = GAVPI.Profile.ProfileDB.DB.Keys.ToList();
-            }
+            //else if (cbPasteType.Text == "Data_Paste")
+            //{
+            //    cbPasteValue.DropDownStyle = ComboBoxStyle.DropDownList;
+            //    cbPasteValue.DataSource = GAVPI.Profile.ProfileDB.DB.Keys.ToList();
+            //}
             else
             {
                 //unsupported type!
