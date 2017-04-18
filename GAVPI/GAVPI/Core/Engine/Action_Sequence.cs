@@ -99,8 +99,8 @@ namespace GAVPI
             }
             else
             {
-                throw new ArgumentNullException("Action_Sequence missing required attribute name.");
                 GAVPI.ProfileDebugLog.Entry("[ ! ] A malformed action sequence was detected and dropped.");
+                throw new ArgumentNullException("Action_Sequence missing required attribute name.");
             }
 
 

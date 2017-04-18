@@ -201,7 +201,7 @@ namespace GAVPI
             }
             catch (Exception e)
             {
-                // TODO : Notify error.
+                MessageBox.Show("Sound Playback Device Initializing Err : " + e.Message, "Error");
             }
         }
 
@@ -259,7 +259,7 @@ namespace GAVPI
             catch (Exception e)
             {
                 // TODO : Notify error.
-                MessageBox.Show("Cannot playback media file " + this.value, "Error");
+                MessageBox.Show("Cannot playback media file " + this.value, "Error: " + e.Message);
             }
         }
     }
